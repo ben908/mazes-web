@@ -1,0 +1,43 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body, 
+h1, 
+h2, 
+h3,
+p {
+  margin: 0;
+  margin-block-end: 0;
+  margin-block-start: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+body {
+  touch-action: none !important;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  margin: 0;
+  font-family: -apple-system,system-ui,
+    BlinkMacSystemFont,"Segoe UI",Roboto,
+    "Helvetica Neue","Fira Sans",Ubuntu,Oxygen,
+    "Oxygen Sans",Cantarell,"Droid Sans",
+    "Apple Color Emoji","Segoe UI Emoji",
+    "Segoe UI Emoji","Segoe UI Symbol",
+    "Lucida Grande",Helvetica,Arial,sans-serif;
+}
