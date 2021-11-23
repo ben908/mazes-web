@@ -3,22 +3,21 @@
 
 #include <cassert>
 
-void DisjointSets::addelements(int num) {
+void DisjointSets::addelements(uint32_t num) {
   assert(num >= 0);
 
-  for (int i = 0; i < num; ++i) {
-    _data.push_back(-1);
-  }
+  _data.insert(_data.end(), num, -1);
 }
 
-int DisjointSets::find(int elem) const {
+int DisjointSets::find(uint32_t elem) {
   if (_data[elem] < 0) {
     return elem;
   }
-  return find(_data[elem]);
+  _data[elem] = find(_data[elem]);
+  return _data[elem];
 }
 
-void DisjointSets::setunion(int a, int b) {
+void DisjointSets::setunion(uint32_t a, uint32_t b) {
   a = find(a);
   b = find(b);
 
@@ -32,9 +31,9 @@ void DisjointSets::setunion(int a, int b) {
   _data[b] = new_size;
 }
 
-int DisjointSets::size(int elem) const { return -1 * _data[find(elem)]; }
+uint32_t DisjointSets::size(uint32_t elem) { return -1 * _data[find(elem)]; }
 
-DisjointSets::DisjointSets(const vector<int> &data) : _data(data) {}
+DisjointSets::DisjointSets(const vector<int>& data) : _data(data) {}
 
 void DisjointSets::clear() { _data.clear(); }
 

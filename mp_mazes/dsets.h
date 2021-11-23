@@ -9,11 +9,11 @@ class DisjointSets {
   DisjointSets();
   explicit DisjointSets(const vector<int>& data);
 
-  void addelements(int num);
-  void setunion(int a, int b);
+  void addelements(uint32_t num);
+  void setunion(uint32_t a, uint32_t b);
 
-  int find(int elem) const;
-  int size(int elem) const;
+  int find(uint32_t elem);
+  uint32_t size(uint32_t elem);
 
   void clear();
 
