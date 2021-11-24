@@ -6,6 +6,29 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls'
 import Stats from 'three/examples/jsm/libs/stats.module'
 
+import "./mazes"
+
+createModule().then(({SquareMaze, Int1dVec}) => {
+  // Hardcoded input values
+  console.time("maze")
+  const test = new SquareMaze(6);
+  const vec = new Int1dVec();
+  vec.push_back(5);
+  vec.push_back(11);
+  vec.push_back(5);
+  vec.push_back(15);
+  vec.push_back(15);
+  vec.push_back(16);
+
+  test.makeMaze(vec);
+  const sols = test.solveMaze();
+  console.timeEnd("maze")
+  vec.delete();
+  test.delete();
+  sols.delete();
+  // Perform computation
+  // document.getElementById("answer").innerHTML = root.toFixed(2);
+});
 
 const stats = Stats()
 document.body.appendChild(stats.dom)
@@ -38,27 +61,27 @@ function animate() {
 	// required if controls.enableDamping or controls.autoRotate are set to true
 	controls.update();
   stats.update();
-	renderer.render( scene, camera );
+	// renderer.render( scene, camera );
 }
 
 
 const pointLight = new THREE.PointLight(0xffffff);
 const lightHelper = new THREE.PointLightHelper(pointLight);
-const gridHelper = new THREE.GridHelper(200, 50); 
+const gridHelper = new THREE.GridHelper(500, 50); 
 const axesHelper = new THREE.AxesHelper(5000);
 pointLight.position.set(0, 0, 0);
 axesHelper.setColors(new THREE.Color(0xff0000), new THREE.Color(0x00ff00), new THREE.Color(0x0000ff))
 scene.add( axesHelper );
 scene.add(lightHelper, gridHelper);
 
-const geometry = new THREE.BoxGeometry(1, 1, 1);
+const geometry = new THREE.BoxGeometry(.1, .1, .1);
 const material = new THREE.MeshBasicMaterial({
   color: 0x333333,
   opacity: 0.3,
   transparent: true,
 });
 
-let size = 100;
+let size = 150;
 var mesh = new THREE.InstancedMesh( geometry, material, size * size * size );
 //max per mesh: 268435456
 scene.add( mesh );

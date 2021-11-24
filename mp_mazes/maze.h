@@ -34,7 +34,10 @@ class SquareMaze {
   void setWall(int32_t x, int32_t y, int32_t dir, bool exists);
 
   vector<int32_t> solveMaze();
-
+  vector<Square> getMaze() { return maze_vector_; }
+  vector<int32_t> getDimensionVector() { return dimension_vector_; }
+  vector<vector<int32_t>> getIndexToPointVector() { return index_to_point_; }
+  
  private:
   int32_t num_dimension_;
 
