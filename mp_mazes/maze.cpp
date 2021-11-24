@@ -18,15 +18,15 @@ bool SquareMaze::canTravel(int32_t x, int32_t y, int32_t dir) const {
         return false;
       }
       break;
-    case 2:
-      if (y + 1 >= dimension_vector_[1]) return false;
-      if (maze_vector_[dimension_vector_[0] * y + x].walls[1]) {
-        return false;
-      }
-      break;
     case 1:
       if (x - 1 < 0) return false;
       if (maze_vector_[dimension_vector_[0] * y + (x - 1)].walls[0]) {
+        return false;
+      }
+      break;
+    case 2:
+      if (y + 1 >= dimension_vector_[1]) return false;
+      if (maze_vector_[dimension_vector_[0] * y + x].walls[1]) {
         return false;
       }
       break;
@@ -43,18 +43,23 @@ bool SquareMaze::canTravel(int32_t x, int32_t y, int32_t dir) const {
   return true;
 }
 
-unsigned int SquareMaze::_next_array_position(const vector<uint32_t>& point,
-                                              uint32_t direction) {
-  std::vector<unsigned int> point_vec(0);
-
-  //  xn = ( ( Index - Index( x1, ..., x{n-1} ) ) / Product( D1, ..., D{N-1} ) )
-  //  % Dn
-
-  return 0;
+int SquareMaze::_mult_vec_except_first_n(const vector<int32_t>& v,
+                                         int32_t leave) {
+  int mul = 1;
+  for (size_t i = leave; i < v.size(); ++i) {
+    mul *= v[i];
+  }
+  return mul;
 }
 
-int SquareMaze::_next_array_position(uint32_t point, uint32_t direction) {
-  return 0;
+int SquareMaze::_next_array_position(int32_t point, int32_t dimension,
+                                     bool direction) {
+  int32_t offset = _mult_vec_except_first_n(dimension_vector_, num_dimension_ - dimension);
+  if (direction) {
+    return point + offset;
+  } else {
+    return point - offset;
+  }
 }
 
 int32_t SquareMaze::_mult_vec_except_last_n(const vector<int32_t>& v,
@@ -82,6 +87,19 @@ void SquareMaze::makeMaze(const std::vector<int32_t>& dimensions) {
       maze_vector_[i].walls[j] = true;
     }
   }
+  index_to_point_ = vector<vector<int>>(total_num_squares,
+                                        vector<int32_t>(num_dimension_, 0));
+  vector<int32_t> current_vec(num_dimension_, 0);
+  for (size_t i = 0; i < maze_vector_.size(); ++i) {
+    index_to_point_[i] = current_vec;
+    current_vec[0] += 1;
+    for (int32_t j = 0; j < num_dimension_ - 1; ++j) {
+      if (current_vec[j] >= dimension_vector_[j]) {
+        current_vec[j + 1] += 1;
+        current_vec[j] = 0;
+      }
+    }
+  }
   maze_set_.addelements(total_num_squares);
 
   vector<int> order_to_remove(num_dimension_ * total_num_squares);
@@ -100,26 +118,32 @@ void SquareMaze::makeMaze(const std::vector<int32_t>& dimensions) {
 
 void SquareMaze::_try_to_remove(int vec_loc, int dir) {
   //  assert(dir == 0 || dir == 1);
-  int32_t x = vec_loc % dimension_vector_[0];
-  int32_t y = vec_loc / dimension_vector_[0];
+  //  int32_t x = vec_loc % dimension_vector_[0];
+  //  int32_t y = vec_loc / dimension_vector_[0];
+
+  int32_t x = index_to_point_[vec_loc][0];
+  int32_t y = index_to_point_[vec_loc][1];
 
   switch (dir) {
     case 0:
-      if (x + 1 >= dimension_vector_[0]) return;             // check bounds
-      if (_will_create_cycle(vec_loc, vec_loc + 1)) return;  // check cycle
+      if (x + 1 >= dimension_vector_[0]) return;  // check bounds
+      if (_will_create_cycle
+          (vec_loc,_next_array_position(vec_loc, 0, true)))
+        return;  // check cycle
 
       // remove
-      maze_set_.setunion(vec_loc, vec_loc + 1);
+      maze_set_.setunion(vec_loc, _next_array_position(vec_loc, 0, true));
       maze_vector_[vec_loc].walls[0] = false;
       break;
 
     case 1:
       if (y + 1 >= dimension_vector_[1]) return;  // check bounds
-      if (_will_create_cycle(vec_loc, vec_loc + dimension_vector_[0]))
+      if (_will_create_cycle
+          (vec_loc, _next_array_position(vec_loc, 1, true)))
         return;  // check cycle
 
       // remove
-      maze_set_.setunion(vec_loc, vec_loc + dimension_vector_[0]);
+      maze_set_.setunion(vec_loc, _next_array_position(vec_loc, 1, true));
       maze_vector_[vec_loc].walls[1] = false;
       break;
 

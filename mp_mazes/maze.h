@@ -39,7 +39,12 @@ class SquareMaze {
 
   DisjointSets maze_set_;
   vector<Square> maze_vector_;
+  vector<vector<int32_t>> index_to_point_;
 
+  /**
+   * Input as to constructor: [x, y, z, a, b, c]
+   * so traversing x is near
+   **/
   vector<int32_t> dimension_vector_;
   //  int width_{};
   //  int height_{};
@@ -48,10 +53,17 @@ class SquareMaze {
 
   void _try_to_remove(int vec_loc, int dir);
   bool _will_create_cycle(uint32_t a, uint32_t b);
-  unsigned int _next_array_position(const vector<uint32_t>& point,
-                                    uint32_t direction);
-  int _next_array_position(uint32_t point, uint32_t direction);
+  
+  /**
+   *
+   * @param point original index point
+   * @param dim dimension index to traverse
+   * @param dir true = forward, false = back
+   * @return index of desired location
+   */
+  int _next_array_position(int32_t point, int32_t dim, bool dir);
 
-  static int _mult_vec_except_last_n(const vector<int32_t>& v,
-                                       int32_t leave);
+  static int _mult_vec_except_last_n(const vector<int32_t>& v, int32_t leave);
+  static int _mult_vec_except_first_n(const vector<int32_t>& v, int32_t leave);
+
 };
