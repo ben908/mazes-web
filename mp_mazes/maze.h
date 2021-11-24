@@ -11,7 +11,7 @@ using std::queue;
 using std::vector;
 
 struct Square {
-  Square() {}
+  Square() = default;
 
   unsigned char previous_direction{};
   int32_t previous_point{};
@@ -25,6 +25,8 @@ class SquareMaze {
 
 
   bool canTravel(int32_t index, int32_t dir) const;
+  bool canTravel(int32_t x, int32_t y, int32_t dir) const;
+  
 
   PNG* drawMaze() const;
 
@@ -44,11 +46,9 @@ class SquareMaze {
 
   /**
    * Input as to constructor: [x, y, z, a, b, c]
-   * so traversing x is near
+   * so traversing c is near
    **/
   vector<int32_t> dimension_vector_;
-  //  int width_{};
-  //  int height_{};
 
   int32_t end_location_elem{};
 

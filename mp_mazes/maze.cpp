@@ -10,7 +10,7 @@ using std::pair;
 bool SquareMaze::canTravel(int32_t index, int32_t dir) const {
   bool forwards = !(dir % 2);
   int32_t dim = dir / 2;
-  if (forwards) {
+  if (forwards) { //todo: not plus one
     if (index_to_point_[index][dim] + 1 >= dimension_vector_[dim]) {
       return false;
     }
@@ -31,6 +31,42 @@ bool SquareMaze::canTravel(int32_t index, int32_t dir) const {
   return true;
 }
 
+bool SquareMaze::canTravel(int32_t x, int32_t y, int32_t dir) const {
+  //  assert(dir >= 0 && dir <= 3);
+  
+  // check not through wall
+  switch (dir) {
+    case 0:
+      if (x + 1 >= dimension_vector_[0]) return false;
+      if (maze_vector_[dimension_vector_[0] * y + x].walls[0]) {
+        return false;
+      }
+      break;
+    case 1:
+      if (x - 1 < 0) return false;
+      if (maze_vector_[dimension_vector_[0] * y + (x - 1)].walls[0]) {
+        return false;
+      }
+      break;
+    case 2:
+      if (y + 1 >= dimension_vector_[1]) return false;
+      if (maze_vector_[dimension_vector_[0] * y + x].walls[1]) {
+        return false;
+      }
+      break;
+    case 3:
+      if (y - 1 < 0) return false;
+      if (maze_vector_[dimension_vector_[0] * (y - 1) + x].walls[1]) {
+        return false;
+      }
+      break;
+    default:
+      throw;  // should never execute
+  }
+
+  return true;
+}
+
 int SquareMaze::_mult_vec_except_first_n(const vector<int32_t>& v,
                                          int32_t leave) {
   int mul = 1;
@@ -42,7 +78,8 @@ int SquareMaze::_mult_vec_except_first_n(const vector<int32_t>& v,
 
 int SquareMaze::_next_array_position(int32_t point, int32_t dimension,
                                      bool direction) const {
-  int32_t offset = _mult_vec_except_first_n(dimension_vector_, num_dimension_ - dimension);
+  int32_t offset =
+      _mult_vec_except_last_n(dimension_vector_, num_dimension_ - dimension);
   if (direction) {
     return point + offset;
   } else {
@@ -52,8 +89,8 @@ int SquareMaze::_next_array_position(int32_t point, int32_t dimension,
 
 int32_t SquareMaze::_mult_vec_except_last_n(const vector<int32_t>& v,
                                             int32_t leave) {
-  unsigned int mul = 1;
-  for (size_t i = 0; i < v.size() - leave; ++i) {
+  int32_t mul = 1;
+  for (int32_t i = 0; i < (int32_t )v.size() - leave; ++i) {
     mul *= v[i];
   }
   return mul;
@@ -88,6 +125,7 @@ void SquareMaze::makeMaze(const std::vector<int32_t>& dimensions) {
       }
     }
   }
+  current_vec[0] += 1;
   maze_set_.addelements(total_num_squares);
 
   vector<int> order_to_remove(num_dimension_ * total_num_squares);
@@ -105,18 +143,15 @@ void SquareMaze::makeMaze(const std::vector<int32_t>& dimensions) {
 }
 
 void SquareMaze::_try_to_remove(int vec_loc, int dir) {
-
   int32_t curr_dim_value = index_to_point_[vec_loc][dir];
-  
+
   if (curr_dim_value + 1 >= dimension_vector_[dir]) return;  // check bounds
-  if (_will_create_cycle
-      (vec_loc,_next_array_position(vec_loc, dir, true)))
-        return;  // check cycle
-             
+  if (_will_create_cycle(vec_loc, _next_array_position(vec_loc, dir, true)))
+    return;  // check cycle
+
   // remove
   maze_set_.setunion(vec_loc, _next_array_position(vec_loc, dir, true));
   maze_vector_[vec_loc].walls[dir] = false;
-  
 }
 
 bool SquareMaze::_will_create_cycle(unsigned int a, unsigned int b) {
@@ -152,27 +187,26 @@ vector<int32_t> SquareMaze::solveMaze() {
 
   vector<int32_t> index_to_distance(total_num_squares);
   int32_t bottom_count = 0;
+  int32_t num_places_needed_to_check = _mult_vec_except_first_n(dimension_vector_, 1);
 
   int32_t max_distance = 0;
-  int32_t max_dist_x = 0;
+  int32_t max_dist_index = 0;
 
   while (!queue.empty()) {
-    if (bottom_count >= dimension_vector_[0]) {
+    if (bottom_count >= num_places_needed_to_check) { //todo: fix bottom count
       break;
     }
     int32_t front = queue.front();
-    
-    int32_t x = index_to_point_[front][0];
-    int32_t y = index_to_point_[front][1];
+
     queue.pop();
     if (have_visited[front]) continue;
-
     have_visited[front] = true;
 
-    if (y == dimension_vector_[1] - 1) {
+    if (index_to_point_[front][num_dimension_ - 1] ==
+        dimension_vector_[num_dimension_ - 1] - 1) {
       if (index_to_distance[front] + 1 > max_distance) {
         max_distance = index_to_distance[front];
-        max_dist_x = x;
+        max_dist_index = front;
       }
       ++bottom_count;
     }
@@ -186,22 +220,20 @@ vector<int32_t> SquareMaze::solveMaze() {
         maze_vector_[new_f].previous_point = front;
         index_to_distance[new_f] = front_plus_one;
       }
-      
+
       new_f = _next_array_position(front, i, false);
-      if (canTravel(front, 2*i + 1) && !have_visited[new_f]) {
+      if (canTravel(front, 2 * i + 1) && !have_visited[new_f]) {
         queue.push(new_f);
-        maze_vector_[new_f].previous_direction = 2*i + 1;
+        maze_vector_[new_f].previous_direction = 2 * i + 1;
         maze_vector_[new_f].previous_point = front;
         index_to_distance[new_f] = front_plus_one;
       }
-      
     }
   }
 
   delete[] have_visited;
 
-  end_location_elem =
-      (dimension_vector_[1] - 1) * (dimension_vector_[0]) + max_dist_x;
+  end_location_elem = max_dist_index;
 
   vector<int32_t> path(max_distance);
   int32_t curr = end_location_elem;
