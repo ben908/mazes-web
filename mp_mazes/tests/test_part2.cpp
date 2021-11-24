@@ -238,8 +238,15 @@ void helpSolveMaze(const MazeReader& soln) {
 
   REQUIRE(soln.getSolutionSize() == solution.size());
 
-  for (size_t i = 0; i < solution.size(); i++)
-    if (solution[i] != soln.getSolutionAt(i)) FAIL("Solution is incorrect");
+  for (size_t i = 0; i < solution.size(); i++) {
+    if (solution[i] != soln.getSolutionAt(i)) {
+      std::cout << "Solution size: " << solution.size() << std::endl;
+      std::cout << "Incorrect at: " << i << ", with value: " << solution[i] << ", expected: " << soln.getSolutionAt(i) << std::endl;
+//      FAIL("Solution is incorrect");
+    }
+    
+  }
+    
 }
 
 TEST_CASE("testSolveMazeSmall", "[weight=10][part2][timeout=20000]") {

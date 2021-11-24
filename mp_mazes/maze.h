@@ -21,9 +21,10 @@ struct Square {
 class SquareMaze {
  public:
   SquareMaze() : num_dimension_(2){};
-  explicit SquareMaze(uint32_t dim_count) : num_dimension_(dim_count){};
+  explicit SquareMaze(int32_t dim_count) : num_dimension_(dim_count){};
 
-  bool canTravel(int32_t x, int32_t y, int32_t dir) const;
+
+  bool canTravel(int32_t index, int32_t dir) const;
 
   PNG* drawMaze() const;
 
@@ -53,7 +54,7 @@ class SquareMaze {
 
   void _try_to_remove(int vec_loc, int dir);
   bool _will_create_cycle(uint32_t a, uint32_t b);
-  
+
   /**
    *
    * @param point original index point
@@ -61,9 +62,8 @@ class SquareMaze {
    * @param dir true = forward, false = back
    * @return index of desired location
    */
-  int _next_array_position(int32_t point, int32_t dim, bool dir);
+  int _next_array_position(int32_t point, int32_t dim, bool dir) const;
 
   static int _mult_vec_except_last_n(const vector<int32_t>& v, int32_t leave);
   static int _mult_vec_except_first_n(const vector<int32_t>& v, int32_t leave);
-
 };

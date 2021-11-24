@@ -7,39 +7,27 @@
 using cs225::HSLAPixel;
 using std::pair;
 
-bool SquareMaze::canTravel(int32_t x, int32_t y, int32_t dir) const {
-  //  assert(dir >= 0 && dir <= 3);
-
-  // check not through wall
-  switch (dir) {
-    case 0:
-      if (x + 1 >= dimension_vector_[0]) return false;
-      if (maze_vector_[dimension_vector_[0] * y + x].walls[0]) {
-        return false;
-      }
-      break;
-    case 1:
-      if (x - 1 < 0) return false;
-      if (maze_vector_[dimension_vector_[0] * y + (x - 1)].walls[0]) {
-        return false;
-      }
-      break;
-    case 2:
-      if (y + 1 >= dimension_vector_[1]) return false;
-      if (maze_vector_[dimension_vector_[0] * y + x].walls[1]) {
-        return false;
-      }
-      break;
-    case 3:
-      if (y - 1 < 0) return false;
-      if (maze_vector_[dimension_vector_[0] * (y - 1) + x].walls[1]) {
-        return false;
-      }
-      break;
-    default:
-      throw;  // should never execute
+bool SquareMaze::canTravel(int32_t index, int32_t dir) const {
+  bool forwards = !(dir % 2);
+  int32_t dim = dir / 2;
+  if (forwards) {
+    if (index_to_point_[index][dim] + 1 >= dimension_vector_[dim]) {
+      return false;
+    }
+  } else {
+    if (index_to_point_[index][dim] - 1 < 0) {
+      return false;
+    }
   }
-
+  if (forwards) {
+    if (maze_vector_[index].walls[dim]) {
+      return false;
+    }
+  } else {
+    if (maze_vector_[_next_array_position(index, dim, forwards)].walls[dim]) {
+      return false;
+    }
+  }
   return true;
 }
 
@@ -53,7 +41,7 @@ int SquareMaze::_mult_vec_except_first_n(const vector<int32_t>& v,
 }
 
 int SquareMaze::_next_array_position(int32_t point, int32_t dimension,
-                                     bool direction) {
+                                     bool direction) const {
   int32_t offset = _mult_vec_except_first_n(dimension_vector_, num_dimension_ - dimension);
   if (direction) {
     return point + offset;
@@ -117,39 +105,18 @@ void SquareMaze::makeMaze(const std::vector<int32_t>& dimensions) {
 }
 
 void SquareMaze::_try_to_remove(int vec_loc, int dir) {
-  //  assert(dir == 0 || dir == 1);
-  //  int32_t x = vec_loc % dimension_vector_[0];
-  //  int32_t y = vec_loc / dimension_vector_[0];
 
-  int32_t x = index_to_point_[vec_loc][0];
-  int32_t y = index_to_point_[vec_loc][1];
-
-  switch (dir) {
-    case 0:
-      if (x + 1 >= dimension_vector_[0]) return;  // check bounds
-      if (_will_create_cycle
-          (vec_loc,_next_array_position(vec_loc, 0, true)))
+  int32_t curr_dim_value = index_to_point_[vec_loc][dir];
+  
+  if (curr_dim_value + 1 >= dimension_vector_[dir]) return;  // check bounds
+  if (_will_create_cycle
+      (vec_loc,_next_array_position(vec_loc, dir, true)))
         return;  // check cycle
-
-      // remove
-      maze_set_.setunion(vec_loc, _next_array_position(vec_loc, 0, true));
-      maze_vector_[vec_loc].walls[0] = false;
-      break;
-
-    case 1:
-      if (y + 1 >= dimension_vector_[1]) return;  // check bounds
-      if (_will_create_cycle
-          (vec_loc, _next_array_position(vec_loc, 1, true)))
-        return;  // check cycle
-
-      // remove
-      maze_set_.setunion(vec_loc, _next_array_position(vec_loc, 1, true));
-      maze_vector_[vec_loc].walls[1] = false;
-      break;
-
-    default:
-      throw;  // should never execute
-  }
+             
+  // remove
+  maze_set_.setunion(vec_loc, _next_array_position(vec_loc, dir, true));
+  maze_vector_[vec_loc].walls[dir] = false;
+  
 }
 
 bool SquareMaze::_will_create_cycle(unsigned int a, unsigned int b) {
@@ -194,8 +161,9 @@ vector<int32_t> SquareMaze::solveMaze() {
       break;
     }
     int32_t front = queue.front();
-    int32_t x = front % dimension_vector_[0];
-    int32_t y = front / dimension_vector_[0];
+    
+    int32_t x = index_to_point_[front][0];
+    int32_t y = index_to_point_[front][1];
     queue.pop();
     if (have_visited[front]) continue;
 
@@ -209,34 +177,24 @@ vector<int32_t> SquareMaze::solveMaze() {
       ++bottom_count;
     }
 
-    int32_t new_f = front + 1;
     int32_t front_plus_one = index_to_distance[front] + 1;
-    if (canTravel(x, y, 0) && !have_visited[new_f]) {
-      queue.push(new_f);
-      maze_vector_[new_f].previous_direction = 0;
-      maze_vector_[new_f].previous_point = front;
-      index_to_distance[new_f] = front_plus_one;
-    }
-    new_f = front + dimension_vector_[0];
-    if (canTravel(x, y, 2) && !have_visited[new_f]) {
-      queue.push(new_f);
-      maze_vector_[new_f].previous_direction = 2;
-      maze_vector_[new_f].previous_point = front;
-      index_to_distance[new_f] = front_plus_one;
-    }
-    new_f = front - 1;
-    if (canTravel(x, y, 1) && !have_visited[new_f]) {
-      queue.push(new_f);
-      maze_vector_[new_f].previous_direction = 1;
-      maze_vector_[new_f].previous_point = front;
-      index_to_distance[new_f] = front_plus_one;
-    }
-    new_f = front - dimension_vector_[0];
-    if (canTravel(x, y, 3) && !have_visited[new_f]) {
-      queue.push(new_f);
-      maze_vector_[new_f].previous_direction = 3;
-      maze_vector_[new_f].previous_point = front;
-      index_to_distance[new_f] = front_plus_one;
+    for (int32_t i = 0; i < num_dimension_; ++i) {
+      int32_t new_f = _next_array_position(front, i, true);
+      if (canTravel(front, 2 * i) && !have_visited[new_f]) {
+        queue.push(new_f);
+        maze_vector_[new_f].previous_direction = 2 * i;
+        maze_vector_[new_f].previous_point = front;
+        index_to_distance[new_f] = front_plus_one;
+      }
+      
+      new_f = _next_array_position(front, i, false);
+      if (canTravel(front, 2*i + 1) && !have_visited[new_f]) {
+        queue.push(new_f);
+        maze_vector_[new_f].previous_direction = 2*i + 1;
+        maze_vector_[new_f].previous_point = front;
+        index_to_distance[new_f] = front_plus_one;
+      }
+      
     }
   }
 

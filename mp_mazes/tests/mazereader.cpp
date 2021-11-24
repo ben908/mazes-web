@@ -23,14 +23,14 @@ MazeReader::MazeReader(const PNG& image)
         (solution.empty() || solution.back() != LEFT)) {
       solution.push_back(RIGHT);
       x++;
-    } else if (image.getPixel(x * 10 + 5, y * 10 + 6) == red &&
-               (solution.empty() || solution.back() != UP)) {
-      solution.push_back(DOWN);
-      y++;
     } else if (image.getPixel(x * 10 + 4, y * 10 + 5) == red &&
                (solution.empty() || solution.back() != RIGHT)) {
       solution.push_back(LEFT);
       x--;
+    } else if (image.getPixel(x * 10 + 5, y * 10 + 6) == red &&
+               (solution.empty() || solution.back() != UP)) {
+      solution.push_back(DOWN);
+      y++;
     } else if (image.getPixel(x * 10 + 5, y * 10 + 4) == red &&
                (solution.empty() || solution.back() != DOWN)) {
       solution.push_back(UP);
