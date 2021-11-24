@@ -12,11 +12,11 @@ class DisjointSets {
   void addelements(uint32_t num);
   void setunion(uint32_t a, uint32_t b);
 
-  int find(uint32_t elem);
+  uint32_t find(uint32_t elem);
   uint32_t size(uint32_t elem);
 
   void clear();
 
  private:
-  vector<int> _data;
+  vector<int32_t> _data;
 };

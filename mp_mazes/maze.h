@@ -23,10 +23,8 @@ class SquareMaze {
   SquareMaze() : num_dimension_(2){};
   explicit SquareMaze(int32_t dim_count) : num_dimension_(dim_count){};
 
-
   bool canTravel(int32_t index, int32_t dir) const;
   bool canTravel(int32_t x, int32_t y, int32_t dir) const;
-  
 
   PNG* drawMaze() const;
 

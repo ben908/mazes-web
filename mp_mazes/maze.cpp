@@ -10,7 +10,7 @@ using std::pair;
 bool SquareMaze::canTravel(int32_t index, int32_t dir) const {
   bool forwards = !(dir % 2);
   int32_t dim = dir / 2;
-  if (forwards) { //todo: not plus one
+  if (forwards) {
     if (index_to_point_[index][dim] + 1 >= dimension_vector_[dim]) {
       return false;
     }
@@ -33,7 +33,7 @@ bool SquareMaze::canTravel(int32_t index, int32_t dir) const {
 
 bool SquareMaze::canTravel(int32_t x, int32_t y, int32_t dir) const {
   //  assert(dir >= 0 && dir <= 3);
-  
+
   // check not through wall
   switch (dir) {
     case 0:
@@ -90,7 +90,7 @@ int SquareMaze::_next_array_position(int32_t point, int32_t dimension,
 int32_t SquareMaze::_mult_vec_except_last_n(const vector<int32_t>& v,
                                             int32_t leave) {
   int32_t mul = 1;
-  for (int32_t i = 0; i < (int32_t )v.size() - leave; ++i) {
+  for (int32_t i = 0; i < (int32_t)v.size() - leave; ++i) {
     mul *= v[i];
   }
   return mul;
@@ -187,13 +187,14 @@ vector<int32_t> SquareMaze::solveMaze() {
 
   vector<int32_t> index_to_distance(total_num_squares);
   int32_t bottom_count = 0;
-  int32_t num_places_needed_to_check = _mult_vec_except_first_n(dimension_vector_, 1);
+  int32_t num_places_needed_to_check =
+      _mult_vec_except_first_n(dimension_vector_, 1);
 
   int32_t max_distance = 0;
   int32_t max_dist_index = 0;
 
   while (!queue.empty()) {
-    if (bottom_count >= num_places_needed_to_check) { //todo: fix bottom count
+    if (bottom_count >= num_places_needed_to_check) {
       break;
     }
     int32_t front = queue.front();
