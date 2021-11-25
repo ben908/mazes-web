@@ -6,29 +6,9 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls'
 import Stats from 'three/examples/jsm/libs/stats.module'
 
-import "./mazes"
-
-createModule().then(({SquareMaze, Int1dVec}) => {
-  // Hardcoded input values
-  console.time("maze")
-  const test = new SquareMaze(6);
-  const vec = new Int1dVec();
-  vec.push_back(5);
-  vec.push_back(11);
-  vec.push_back(5);
-  vec.push_back(15);
-  vec.push_back(15);
-  vec.push_back(16);
-
-  test.makeMaze(vec);
-  const sols = test.solveMaze();
-  console.timeEnd("maze")
-  vec.delete();
-  test.delete();
-  sols.delete();
-  // Perform computation
-  // document.getElementById("answer").innerHTML = root.toFixed(2);
-});
+// import "./mazes"
+import { createModule } from "./mazes"
+// let MAZE = require('./mazes')
 
 const stats = Stats()
 document.body.appendChild(stats.dom)
@@ -54,16 +34,6 @@ controls.target.set(25, 0, 25);
 camera.position.set( 0, 20, 100 );
 controls.update();
 
-function animate() {
-
-	requestAnimationFrame( animate );
-
-	// required if controls.enableDamping or controls.autoRotate are set to true
-	controls.update();
-  stats.update();
-	// renderer.render( scene, camera );
-}
-
 
 const pointLight = new THREE.PointLight(0xffffff);
 const lightHelper = new THREE.PointLightHelper(pointLight);
@@ -74,32 +44,156 @@ axesHelper.setColors(new THREE.Color(0xff0000), new THREE.Color(0x00ff00), new T
 scene.add( axesHelper );
 scene.add(lightHelper, gridHelper);
 
-const geometry = new THREE.BoxGeometry(.1, .1, .1);
+const geometry = new THREE.BoxBufferGeometry(1.2, 1.2, 1.2);
 const material = new THREE.MeshBasicMaterial({
   color: 0x333333,
   opacity: 0.3,
-  transparent: true,
+  transparent: false,
+  blendEquation: THREE.SubtractEquation,
+  blendSrc: THREE.SrcColorFactor,
+  blendDst: THREE.OneFactor
 });
 
-let size = 150;
-var mesh = new THREE.InstancedMesh( geometry, material, size * size * size );
-//max per mesh: 268435456
-scene.add( mesh );
 
-var dummy = new THREE.Object3D();
+let size = 15;
 
-for (var i = 0; i < size; i++) {
-  for (var j = 0; j < size; j++) {
-    for (var k = 0; k < size; k ++) {
-      dummy.position.x = i*1.2;
-      dummy.position.y = j*1.2;
-      dummy.position.z = k*1.2;
+var allMeshes = new THREE.Group();
+
+function testAdd() {
+  var mesh = new THREE.InstancedMesh( geometry, material, size * size * size );
+  allMeshes.add(mesh)
+  scene.add( mesh );
+
+  var dummy = new THREE.Object3D();
+  //max per mesh: 268435456
+  for (var i = 0; i < size; i++) {
+    for (var j = 0; j < size; j++) {
+      for (var k = 0; k < size; k ++) {
+        dummy.position.x = i*1.2;
+        dummy.position.y = j*1.2;
+        dummy.position.z = k*1.2;
+        dummy.updateMatrix();
+      
+        mesh.setMatrixAt( size * size * i + j*size +k, dummy.matrix );
+        // console.log(dummy.matrix);
+
+      }
+    }
+  }
+  // mesh.updateMatrix()
+  // mesh.updateMatrixWorld()
+  // mesh.updateWorldMatrix()
+}
+// testAdd()
+// for (var i = 0; i < 2 * 15 + 1; i++) {
+//   dummy.position.x = i*1.2;
+//   dummy.position.y = 0
+//   dummy.position.z = 0
+//   dummy.updateMatrix();
+//   mesh.setMatrixAt( size * i, dummy.matrix );
+//   // console.log(dummy.matrix);
+//   // console.log(size*i)
+// }
+// console.log(mesh);
+
+function addMazeWalls(dims, maze_vec) { 
+  const x_with = (dims[0] *2 +1)
+  const y_width = dims[1] * 2 + 1
+  var mesh = new THREE.InstancedMesh( geometry, material, (dims[0] * 2 + 1) * (dims[1] * 2 + 1));
+
+  allMeshes.add(mesh)
+  scene.add( mesh );
+
+  var dummy = new THREE.Object3D();
+  // for (let i = 0; i < maze_vec.size(); i++) {
+  //   console.log(maze_vec.get(i).getWallSide(0))
+  //   console.log(maze_vec.get(i).getWallSide(1))
+  //   console.log()
+  // }
+
+  for (var i = 0; i < 2 * dims[0] + 1; i++) {
+    dummy.position.x = i*1.2;
+    dummy.position.y = 0
+    dummy.position.z = 0
+    dummy.updateMatrix();
+    mesh.setMatrixAt(i, dummy.matrix );
+  }
+
+  for (var j = 0; j < 2 * dims[1] + 1; j++) {
+    dummy.position.z = j*1.2;
+    dummy.position.x = 0
+    dummy.position.y = 0
+    dummy.updateMatrix();
+    mesh.setMatrixAt(j * (dims[0] * 2 + 1), dummy.matrix );
+  }
+
+  for (var j = 0; j < dims[1]; j++) {
+    for (var i = 0; i < dims[0]; i++) {
+      // console.log(maze_vec.size())
+      var loc = dims[0] * j + i;
+      var s = maze_vec.get(loc)
+      let k = 0
+      //0, 0 always empty
+      var x = 2 * i + 1
+      var y = 2 * j + 1
+      //0, 1 = right wall s.getWallSide(1)
+      if (s.getWallSide(0)) {
+        dummy.position.x = (x+1)*1.2;
+        dummy.position.y = 0;
+        dummy.position.z = y*1.2;
+        dummy.updateMatrix();
+    
+        mesh.setMatrixAt(y * x_with + (x + 1), dummy.matrix);
+      }
+      //1, 0 = down wall s.getWallSide(0)
+      if (s.getWallSide(1)) {
+        dummy.position.x = x*1.2;
+        dummy.position.y = 0;
+        dummy.position.z = (y+1)*1.2;
+        dummy.updateMatrix();
+    
+        mesh.setMatrixAt((y+1) * x_with + x, dummy.matrix );
+      }
+
+      //1, 1 always has cube
+      dummy.position.x = (x + 1)*1.2;
+      dummy.position.y = 0;
+      dummy.position.z = (y + 1)*1.2;
       dummy.updateMatrix();
     
-      mesh.setMatrixAt( size * size * i + j*size +k, dummy.matrix );
+      mesh.setMatrixAt((y+1) * x_with + (x + 1), dummy.matrix );
     }
   }
 }
+
+createModule().then(({SquareMaze, Int1dVec}) => {
+  // Hardcoded input values
+  var dims = [200, 200]
+
+
+  console.time("MazeGen")
+  const test = new SquareMaze(2);
+  const vec = new Int1dVec();
+  for (let i = 0; i < dims.length; ++i) {
+    vec.push_back(dims[i]);
+  }
+  test.makeMaze(vec);
+  console.timeEnd("MazeGen")
+  console.time("MazeSolve")
+
+
+  const sols = test.solveMaze();
+  const squares = test.getMaze();
+  console.timeEnd("MazeSolve")
+  console.time("MazeRender")
+  addMazeWalls(dims, squares);
+  console.timeEnd("MazeRender")
+
+  vec.delete();
+  test.delete();
+  sols.delete();
+  squares.delete();
+});
 
 function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight;
@@ -109,5 +203,12 @@ function onWindowResize() {
 
 animate();
 
+function animate() {
 
+	requestAnimationFrame( animate );
 
+	// required if controls.enableDamping or controls.autoRotate are set to true
+	controls.update();
+  stats.update();
+	renderer.render( scene, camera );
+}

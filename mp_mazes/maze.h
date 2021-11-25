@@ -15,7 +15,9 @@ struct Square {
 
   unsigned char previous_direction{};
   int32_t previous_point{};
-  std::vector<bool> walls;
+  vector<bool> walls;
+  bool getWallSide(int32_t w ) { return walls[w]; }
+  // void setWalls(vector<bool> v) { walls = v; }
 };
 
 class SquareMaze {

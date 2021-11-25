@@ -6,9 +6,11 @@
 using namespace emscripten;
 
 EMSCRIPTEN_BINDINGS(square_testing) {
+
   class_<Square>("Square")
       .constructor<>()
       .property("walls", &Square::walls)
+      .function("getWallSide", &Square::getWallSide)
       ;
   class_<SquareMaze>("SquareMaze")
       .constructor<>()
@@ -19,9 +21,9 @@ EMSCRIPTEN_BINDINGS(square_testing) {
       .function("solveMaze", &SquareMaze::solveMaze)
       .function("getMaze", &SquareMaze::getMaze)
       ;
-  
-  register_vector<vector<int32_t>>("Int2dVec");
+    
   register_vector<int32_t>("Int1dVec");
+  register_vector<vector<int32_t>>("Int2dVec");
   register_vector<Square>("SquareVec");
 }
 
