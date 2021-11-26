@@ -327,5 +327,3 @@ function clean() {
   allMeshes = []
   console.timeEnd("RenderCleanUp")
 }
-
-//TODO:: FIX MAZE SOLVE

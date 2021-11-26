@@ -12,6 +12,7 @@ test
 
 # web assembly binaries
 *.wasm
+mp_mazes
 
 # Generated images
 unsolved.png
