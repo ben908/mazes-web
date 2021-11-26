@@ -29,4 +29,4 @@ EMSCRIPTEN_BINDINGS(square_testing) {
 
 
 //compiler command:
-//emcc -I. -o mazes.js -Oz -s ASSERTIONS=1 -s ALLOW_MEMORY_GROWTH=1 -s MODULARIZE=1 -s EXPORT_NAME=createModule --bind maze.cpp dsets.cpp binding.cpp
+//emcc -I. -o mazes.js -O3 -s ASSERTIONS=1 -s ALLOW_MEMORY_GROWTH=1 -s MODULARIZE=1 -s EXPORT_NAME=createModule --bind maze.cpp dsets.cpp binding.cpp

@@ -3,10 +3,8 @@
 #include <queue>
 #include <vector>
 
-#include "./cs225/PNG.h"
 #include "dsets.h"
 
-using cs225::PNG;
 using std::queue;
 using std::vector;
 
@@ -17,7 +15,6 @@ struct Square {
   int32_t previous_point{};
   vector<bool> walls;
   bool getWallSide(int32_t w ) { return walls[w]; }
-  // void setWalls(vector<bool> v) { walls = v; }
 };
 
 class SquareMaze {
@@ -26,14 +23,8 @@ class SquareMaze {
   explicit SquareMaze(int32_t dim_count) : num_dimension_(dim_count){};
 
   bool canTravel(int32_t index, int32_t dir) const;
-  bool canTravel(int32_t x, int32_t y, int32_t dir) const;
-
-  PNG* drawMaze() const;
-
-  PNG* drawMazeWithSolution();
 
   void makeMaze(const std::vector<int32_t>& dimensions);
-  void setWall(int32_t x, int32_t y, int32_t dir, bool exists);
 
   vector<int32_t> solveMaze();
   vector<Square> getMaze() { return maze_vector_; }

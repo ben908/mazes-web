@@ -11,7 +11,7 @@ test
 .obj
 
 # web assembly binaries
-*.wasm
+# *.wasm
 mp_mazes/
 
 # Generated images

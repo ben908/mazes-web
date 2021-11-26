@@ -4,7 +4,6 @@
 #include <map>
 #include <random>
 
-using cs225::HSLAPixel;
 using std::pair;
 
 bool SquareMaze::canTravel(int32_t index, int32_t dir) const {
@@ -28,42 +27,6 @@ bool SquareMaze::canTravel(int32_t index, int32_t dir) const {
       return false;
     }
   }
-  return true;
-}
-
-bool SquareMaze::canTravel(int32_t x, int32_t y, int32_t dir) const {
-  //  assert(dir >= 0 && dir <= 3);
-
-  // check not through wall
-  switch (dir) {
-    case 0:
-      if (x + 1 >= dimension_vector_[0]) return false;
-      if (maze_vector_[dimension_vector_[0] * y + x].walls[0]) {
-        return false;
-      }
-      break;
-    case 1:
-      if (x - 1 < 0) return false;
-      if (maze_vector_[dimension_vector_[0] * y + (x - 1)].walls[0]) {
-        return false;
-      }
-      break;
-    case 2:
-      if (y + 1 >= dimension_vector_[1]) return false;
-      if (maze_vector_[dimension_vector_[0] * y + x].walls[1]) {
-        return false;
-      }
-      break;
-    case 3:
-      if (y - 1 < 0) return false;
-      if (maze_vector_[dimension_vector_[0] * (y - 1) + x].walls[1]) {
-        return false;
-      }
-      break;
-    default:
-      throw;  // should never execute
-  }
-
   return true;
 }
 
@@ -158,23 +121,6 @@ bool SquareMaze::_will_create_cycle(unsigned int a, unsigned int b) {
   return maze_set_.find(a) == maze_set_.find(b);
 }
 
-void SquareMaze::setWall(int32_t x, int32_t y, int32_t dir, bool exists) {
-  assert(dir >= 0 && dir <= 1);
-  assert(x < dimension_vector_[0] && x >= 0);
-  assert(y < dimension_vector_[1] && y >= 0);
-
-  switch (dir) {
-    case 0:
-      maze_vector_[dimension_vector_[0] * y + x].walls[0] = exists;
-      break;
-    case 1:
-      maze_vector_[dimension_vector_[0] * y + x].walls[1] = exists;
-      break;
-    default:
-      throw;  // should never execute
-  }
-}
-
 vector<int32_t> SquareMaze::solveMaze() {
   queue<int32_t> queue;
   queue.push(0);
@@ -244,112 +190,4 @@ vector<int32_t> SquareMaze::solveMaze() {
     curr = next;
   }
   return path;
-}
-
-PNG* SquareMaze::drawMaze() const {
-  PNG* to_return =
-      new PNG(dimension_vector_[0] * 10 + 1, dimension_vector_[1] * 10 + 1);
-  // blacken far left column
-  for (int i = 0; i < (int)to_return->height(); ++i) {
-    HSLAPixel& pix = to_return->getPixel(0, i);
-    pix.h = 0;
-    pix.s = 0;
-    pix.l = 0;
-  }
-  for (int i = 0; i < (int)to_return->width(); ++i) {
-    if (i >= 1 && i <= 9) continue;
-    HSLAPixel& pix = to_return->getPixel(i, 0);
-    pix.h = 0;
-    pix.s = 0;
-    pix.l = 0;
-  }
-  for (uint32_t i = 0; i < maze_vector_.size(); ++i) {
-    const Square& s = maze_vector_[i];
-    uint32_t x = i % dimension_vector_[0];
-    uint32_t y = i / dimension_vector_[0];
-    if (s.walls[0]) {
-      for (size_t k = 0; k <= 10; ++k) {
-        HSLAPixel& pix = to_return->getPixel((x + 1) * 10, (y * 10) + k);
-        pix.h = 0;
-        pix.s = 0;
-        pix.l = 0;
-      }
-    }
-    if (s.walls[1]) {
-      for (size_t k = 0; k <= 10; ++k) {
-        HSLAPixel& pix = to_return->getPixel((x * 10) + k, (y + 1) * 10);
-        pix.h = 0;
-        pix.s = 0;
-        pix.l = 0;
-      }
-    }
-  }
-
-  return to_return;
-}
-
-PNG* SquareMaze::drawMazeWithSolution() {
-  PNG* maze = drawMaze();
-  int curr_x = 5;
-  int curr_y = 5;
-  HSLAPixel& start = maze->getPixel(curr_x, curr_y);
-  start = HSLAPixel(0, 1, 0.5, 1);
-  const vector<int32_t>& solution = solveMaze();
-  for (uint32_t direction : solution) {
-    switch (direction) {
-      case 0:
-        for (int i = 0; i < 10; ++i) {
-          ++curr_x;
-          HSLAPixel& pix = maze->getPixel(curr_x, curr_y);
-          pix.h = 0;
-          pix.s = 1;
-          pix.l = 0.5;
-          pix.a = 1;
-        }
-        break;
-      case 2:
-        for (int i = 0; i < 10; ++i) {
-          ++curr_y;
-          HSLAPixel& pix = maze->getPixel(curr_x, curr_y);
-          pix.h = 0;
-          pix.s = 1;
-          pix.l = 0.5;
-          pix.a = 1;
-        }
-        break;
-      case 1:
-        for (int i = 0; i < 10; ++i) {
-          --curr_x;
-          HSLAPixel& pix = maze->getPixel(curr_x, curr_y);
-          pix.h = 0;
-          pix.s = 1;
-          pix.l = 0.5;
-          pix.a = 1;
-        }
-        break;
-      case 3:
-        for (int i = 0; i < 10; ++i) {
-          --curr_y;
-          HSLAPixel& pix = maze->getPixel(curr_x, curr_y);
-          pix.h = 0;
-          pix.s = 1;
-          pix.l = 0.5;
-          pix.a = 1;
-        }
-        break;
-      default:
-        throw;  // should never execute
-    }
-  }
-  maze_vector_[end_location_elem].walls[num_dimension_] = false;
-  uint32_t x = end_location_elem % dimension_vector_[0];
-  uint32_t y = end_location_elem / dimension_vector_[0];
-
-  HSLAPixel white = HSLAPixel(0, 0, 1, 1);
-  for (int k = 1; k <= 9; ++k) {
-    HSLAPixel& pix = maze->getPixel(x * 10 + k, (y + 1) * 10);
-    pix = white;
-  }
-  num_dimension_++;
-  return maze;
 }
