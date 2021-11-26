@@ -188,7 +188,7 @@ vector<int32_t> SquareMaze::solveMaze() {
   vector<int32_t> index_to_distance(total_num_squares);
   int32_t bottom_count = 0;
   int32_t num_places_needed_to_check =
-      _mult_vec_except_first_n(dimension_vector_, 1);
+      _mult_vec_except_last_n(dimension_vector_, 1);
 
   int32_t max_distance = 0;
   int32_t max_dist_index = 0;

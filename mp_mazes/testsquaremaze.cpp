@@ -12,14 +12,14 @@
 
 int main()
 {
-    SquareMaze m(12);
-    m.makeMaze({3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3});
+    SquareMaze m(2);
+    m.makeMaze({10, 120});
     std::cout << "MakeMaze complete" << std::endl;
 
-//    cs225::PNG* unsolved = m.drawMaze();
-//    unsolved->writeToFile("unsolved.png");
-//    delete unsolved;
-//    std::cout << "drawMaze complete" << std::endl;
+   cs225::PNG* unsolved = m.drawMaze();
+   unsolved->writeToFile("unsolved.png");
+   delete unsolved;
+   std::cout << "drawMaze complete" << std::endl;
 
     std::vector<int> sol = m.solveMaze();
     std::cout << "solveMaze complete" << std::endl;
@@ -33,10 +33,10 @@ int main()
       }
     }
     std::cout << std::endl;
-//    cs225::PNG* solved = m.drawMazeWithSolution();
-//    solved->writeToFile("solved.png");
-//    delete solved;
-//    std::cout << "drawMazeWithSolution complete" << std::endl;
+   cs225::PNG* solved = m.drawMazeWithSolution();
+   solved->writeToFile("solved.png");
+   delete solved;
+   std::cout << "drawMazeWithSolution complete" << std::endl;
 
     return 0;
 }
