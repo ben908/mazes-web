@@ -7,7 +7,7 @@ import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls
 import Stats from 'three/examples/jsm/libs/stats.module'
 import { GUI } from 'three/examples/jsm/libs/dat.gui.module'
 
-import { createModule } from "./mazes"
+import { createModule } from "./public/mazes.js"
 
 const stats = Stats()
 document.body.appendChild(stats.dom)
