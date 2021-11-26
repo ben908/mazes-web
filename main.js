@@ -47,54 +47,22 @@ scene.add(lightHelper, gridHelper);
 const geometry = new THREE.BoxBufferGeometry(1.2, 1.2, 1.2);
 const material = new THREE.MeshBasicMaterial({
   color: 0x333333,
+  opacity: 0.1,
+  transparent: true,
+});
+
+const sols_geometry = new THREE.BoxBufferGeometry(1.2, 1.2, 1.2);
+const sols_material = new THREE.MeshBasicMaterial({
+  color: 0xD82929,
   opacity: 0.3,
   transparent: false,
-  blendEquation: THREE.SubtractEquation,
-  blendSrc: THREE.SrcColorFactor,
-  blendDst: THREE.OneFactor
+  blendEquation: THREE.AdditiveBlending,
 });
 
 
 let size = 15;
 
 var allMeshes = new THREE.Group();
-
-function testAdd() {
-  var mesh = new THREE.InstancedMesh( geometry, material, size * size * size );
-  allMeshes.add(mesh)
-  scene.add( mesh );
-
-  var dummy = new THREE.Object3D();
-  //max per mesh: 268435456
-  for (var i = 0; i < size; i++) {
-    for (var j = 0; j < size; j++) {
-      for (var k = 0; k < size; k ++) {
-        dummy.position.x = i*1.2;
-        dummy.position.y = j*1.2;
-        dummy.position.z = k*1.2;
-        dummy.updateMatrix();
-      
-        mesh.setMatrixAt( size * size * i + j*size +k, dummy.matrix );
-        // console.log(dummy.matrix);
-
-      }
-    }
-  }
-  // mesh.updateMatrix()
-  // mesh.updateMatrixWorld()
-  // mesh.updateWorldMatrix()
-}
-// testAdd()
-// for (var i = 0; i < 2 * 15 + 1; i++) {
-//   dummy.position.x = i*1.2;
-//   dummy.position.y = 0
-//   dummy.position.z = 0
-//   dummy.updateMatrix();
-//   mesh.setMatrixAt( size * i, dummy.matrix );
-//   // console.log(dummy.matrix);
-//   // console.log(size*i)
-// }
-// console.log(mesh);
 
 function addMazeWalls(dims, maze_vec) { 
   const x_with = (dims[0] *2 +1)
@@ -105,26 +73,13 @@ function addMazeWalls(dims, maze_vec) {
   scene.add( mesh );
 
   var dummy = new THREE.Object3D();
-  // for (let i = 0; i < maze_vec.size(); i++) {
-  //   console.log(maze_vec.get(i).getWallSide(0))
-  //   console.log(maze_vec.get(i).getWallSide(1))
-  //   console.log()
-  // }
 
   for (var i = 0; i < 2 * dims[0] + 1; i++) {
-    dummy.position.x = i*1.2;
-    dummy.position.y = 0
-    dummy.position.z = 0
-    dummy.updateMatrix();
-    mesh.setMatrixAt(i, dummy.matrix );
+    addCube(mesh, dummy, [i * 1.2, 0, 0], i)
   }
 
   for (var j = 0; j < 2 * dims[1] + 1; j++) {
-    dummy.position.z = j*1.2;
-    dummy.position.x = 0
-    dummy.position.y = 0
-    dummy.updateMatrix();
-    mesh.setMatrixAt(j * (dims[0] * 2 + 1), dummy.matrix );
+    addCube(mesh, dummy, [0, 0, j*1.2], j * (dims[0] * 2 + 1))
   }
 
   for (var j = 0; j < dims[1]; j++) {
@@ -138,37 +93,81 @@ function addMazeWalls(dims, maze_vec) {
       var y = 2 * j + 1
       //0, 1 = right wall s.getWallSide(1)
       if (s.getWallSide(0)) {
-        dummy.position.x = (x+1)*1.2;
-        dummy.position.y = 0;
-        dummy.position.z = y*1.2;
-        dummy.updateMatrix();
-    
-        mesh.setMatrixAt(y * x_with + (x + 1), dummy.matrix);
+        addCube(mesh, dummy, [(x+1)*1.2, 0, y*1.2], y * x_with + (x + 1))
       }
       //1, 0 = down wall s.getWallSide(0)
       if (s.getWallSide(1)) {
-        dummy.position.x = x*1.2;
-        dummy.position.y = 0;
-        dummy.position.z = (y+1)*1.2;
-        dummy.updateMatrix();
-    
-        mesh.setMatrixAt((y+1) * x_with + x, dummy.matrix );
+        addCube(mesh, dummy, [x*1.2, 0, (y+1)*1.2], (y+1) * x_with + x)
       }
 
       //1, 1 always has cube
-      dummy.position.x = (x + 1)*1.2;
-      dummy.position.y = 0;
-      dummy.position.z = (y + 1)*1.2;
-      dummy.updateMatrix();
-    
-      mesh.setMatrixAt((y+1) * x_with + (x + 1), dummy.matrix );
+      addCube(mesh, dummy, [(x + 1)*1.2, 0, (y + 1)*1.2], (y+1) * x_with + (x + 1))
     }
   }
 }
 
+function addMazeSolution(dims, solution) {
+  const x_with = (dims[0] *2 +1)
+  const y_width = dims[1] * 2 + 1
+  var mesh = new THREE.InstancedMesh( sols_geometry, sols_material, (solution.size()*2) + 1);
+
+  allMeshes.add(mesh)
+  scene.add( mesh );
+  var curr_x = 1;
+  var curr_y = 1;
+  var vec = new THREE.Object3D();
+
+  addCube(mesh, vec, [curr_x * 1.2, 0, curr_y * 1.2], solution.size() * 2)
+
+  for (let i = 0; i < solution.size(); ++i) {
+    let dir = solution.get(i);
+    let index = i * 2
+    if (dir == 0) {
+      curr_x++;
+      addCube(mesh, vec, [curr_x * 1.2, 0, curr_y * 1.2], index)
+      
+      curr_x++;
+      addCube(mesh, vec, [curr_x * 1.2, 0, curr_y * 1.2], index + 1)
+
+    } else if (dir == 1) {
+      curr_x--
+      addCube(mesh, vec, [curr_x * 1.2, 0, curr_y * 1.2], index)
+      
+      curr_x--;
+      addCube(mesh, vec, [curr_x * 1.2, 0, curr_y * 1.2], index + 1)
+
+    } else if (dir == 2) {
+      curr_y++;
+      addCube(mesh, vec, [curr_x * 1.2, 0, curr_y * 1.2], index)
+      
+      curr_y++;
+      addCube(mesh, vec, [curr_x * 1.2, 0, curr_y * 1.2], index + 1)
+
+    } else if (dir == 3) {
+      curr_y--;
+      addCube(mesh, vec, [curr_x * 1.2, 0, curr_y * 1.2], index)
+      
+      curr_y--;
+      addCube(mesh, vec, [curr_x * 1.2, 0, curr_y * 1.2], index + 1)
+
+    } else {
+      throw Error("Should never execute")
+    }
+  }
+}
+
+function addCube(mesh, vec, position, index) {
+  vec.position.x = position[0] 
+  vec.position.y = position[1]
+  vec.position.z = position[2]
+
+  vec.updateMatrix()
+  mesh.setMatrixAt(index, vec.matrix)
+}
+
 createModule().then(({SquareMaze, Int1dVec}) => {
   // Hardcoded input values
-  var dims = [200, 200]
+  var dims = [20, 20]
 
 
   console.time("MazeGen")
@@ -187,6 +186,7 @@ createModule().then(({SquareMaze, Int1dVec}) => {
   console.timeEnd("MazeSolve")
   console.time("MazeRender")
   addMazeWalls(dims, squares);
+  addMazeSolution(dims, sols);
   console.timeEnd("MazeRender")
 
   vec.delete();
