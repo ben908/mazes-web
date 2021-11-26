@@ -5,10 +5,9 @@ import { CSS3DRenderer, CSS3DObject } from 'three/examples/jsm/renderers/CSS3DRe
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls'
 import Stats from 'three/examples/jsm/libs/stats.module'
+import { GUI } from 'three/examples/jsm/libs/dat.gui.module'
 
-// import "./mazes"
 import { createModule } from "./mazes"
-// let MAZE = require('./mazes')
 
 const stats = Stats()
 document.body.appendChild(stats.dom)
@@ -60,16 +59,14 @@ const sols_material = new THREE.MeshBasicMaterial({
 });
 
 
-let size = 15;
-
-var allMeshes = new THREE.Group();
+var allMeshes = []
 
 function addMazeWalls(dims, maze_vec) { 
   const x_with = (dims[0] *2 +1)
   const y_width = dims[1] * 2 + 1
   var mesh = new THREE.InstancedMesh( geometry, material, (dims[0] * 2 + 1) * (dims[1] * 2 + 1));
 
-  allMeshes.add(mesh)
+  allMeshes.push(mesh)
   scene.add( mesh );
 
   var dummy = new THREE.Object3D();
@@ -111,7 +108,7 @@ function addMazeSolution(dims, solution) {
   const y_width = dims[1] * 2 + 1
   var mesh = new THREE.InstancedMesh( sols_geometry, sols_material, (solution.size()*2) + 1);
 
-  allMeshes.add(mesh)
+  allMeshes.push( mesh )
   scene.add( mesh );
   var curr_x = 1;
   var curr_y = 1;
@@ -165,42 +162,24 @@ function addCube(mesh, vec, position, index) {
   mesh.setMatrixAt(index, vec.matrix)
 }
 
-createModule().then(({SquareMaze, Int1dVec}) => {
-  // Hardcoded input values
-  var dims = [20, 20]
-
-
-  console.time("MazeGen")
-  const test = new SquareMaze(2);
-  const vec = new Int1dVec();
-  for (let i = 0; i < dims.length; ++i) {
-    vec.push_back(dims[i]);
-  }
-  test.makeMaze(vec);
-  console.timeEnd("MazeGen")
-  console.time("MazeSolve")
-
-
-  const sols = test.solveMaze();
-  const squares = test.getMaze();
-  console.timeEnd("MazeSolve")
-  console.time("MazeRender")
-  addMazeWalls(dims, squares);
-  addMazeSolution(dims, sols);
-  console.timeEnd("MazeRender")
-
-  vec.delete();
-  test.delete();
-  sols.delete();
-  squares.delete();
-});
-
 function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize( window.innerWidth, window.innerHeight );
 }
 
+const params = {
+  fancyGraphics: false,
+  showMazeWalls: true,
+  mazeWallOpacity: 0.1,
+  showMazeSolution: true,
+  mazeSolutionOpacity: 1,
+  numDimensions: 2,
+  generateNewMaze: generateNewMaze,
+}
+
+generateNewMaze();
+init();
 animate();
 
 function animate() {
@@ -211,4 +190,61 @@ function animate() {
 	controls.update();
   stats.update();
 	renderer.render( scene, camera );
+}
+
+function init() {
+  const gui = new GUI()
+  gui.add( params, 'fancyGraphics')
+  gui.add( params, 'showMazeWalls' )
+  gui.add( params, 'mazeWallOpacity', 0.0, 1.0, 0.01 )
+  gui.add( params, 'showMazeSolution' );
+  gui.add( params, 'mazeSolutionOpacity', 0.0, 1.0, 0.01 );
+  gui.add( params, 'numDimensions', 2, 12, 1);
+  gui.add( params, 'generateNewMaze');
+  gui.open();
+
+}
+
+function generateNewMaze() {
+  clean()
+  createModule().then(({SquareMaze, Int1dVec}) => {
+    // Hardcoded input values
+    var dims = [20, 20]
+  
+  
+    console.time("MazeGen")
+    const test = new SquareMaze(2);
+    const vec = new Int1dVec();
+    for (let i = 0; i < dims.length; ++i) {
+      vec.push_back(dims[i]);
+    }
+    test.makeMaze(vec);
+    console.timeEnd("MazeGen")
+    console.time("MazeSolve")
+  
+  
+    const sols = test.solveMaze();
+    const squares = test.getMaze();
+    console.timeEnd("MazeSolve")
+    console.time("MazeRender")
+    addMazeWalls(dims, squares);
+    addMazeSolution(dims, sols);
+    console.timeEnd("MazeRender")
+    console.log("\n")
+  
+    vec.delete();
+    test.delete();
+    sols.delete();
+    squares.delete();
+  });
+}
+
+function clean() {
+  allMeshes.forEach( mesh => {
+    scene.remove(mesh);
+    mesh.geometry.dispose();
+    mesh.material.dispose();
+    mesh.dispose();
+  })
+  allMeshes = []
 }
