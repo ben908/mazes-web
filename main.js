@@ -137,19 +137,19 @@ function addMazeWalls3D(dims, maze) {
     let curPoint = indexToPoint.get(i);
     //0,0 always empty
     if (curSquare.getWallSide(0)) {
-      addCube(mesh, dummy, [curPoint.get(0) * 2 + 1, -1 * curPoint.get(2) * 2, curPoint.get(1) * 2], 8*i)
+      addCube(mesh, dummy, [curPoint.get(0) * 2 + 1, -1 * curPoint.get(2) * 2, curPoint.get(1) * 2], 8 * i)
     }
     if (curSquare.getWallSide(1)) {
-      addCube(mesh, dummy, [curPoint.get(0) * 2, -1 * curPoint.get(2) * 2, curPoint.get(1) * 2 + 1], 8*i + 1)
+      addCube(mesh, dummy, [curPoint.get(0) * 2, -1 * curPoint.get(2) * 2, curPoint.get(1) * 2 + 1], 8 * i + 1)
     }
     if (curSquare.getWallSide(2)) {
-      addCube(mesh, dummy, [curPoint.get(0) * 2, -1 * curPoint.get(2) * 2 - 1, curPoint.get(1) * 2], 8*i + 2)
+      addCube(mesh, dummy, [curPoint.get(0) * 2, -1 * curPoint.get(2) * 2 - 1, curPoint.get(1) * 2], 8 * i + 2)
     }
 
-    addCube(mesh, dummy, [curPoint.get(0) * 2 + 1, -1 * curPoint.get(2) * 2, curPoint.get(1) * 2 + 1], 8*i + 3)
-    addCube(mesh, dummy, [curPoint.get(0) * 2 + 1, -1 * curPoint.get(2) * 2 - 1, curPoint.get(1) * 2], 8*i + 4)
-    addCube(mesh, dummy, [curPoint.get(0) * 2 + 1, -1 * curPoint.get(2) * 2 - 1, curPoint.get(1) * 2 + 1], 8*i + 5)
-    addCube(mesh, dummy, [curPoint.get(0) * 2, -1 * curPoint.get(2) * 2 - 1, curPoint.get(1) * 2 + 1], 8*i + 6)
+    addCube(mesh, dummy, [curPoint.get(0) * 2 + 1, -1 * curPoint.get(2) * 2, curPoint.get(1) * 2 + 1], 8 * i + 3)
+    addCube(mesh, dummy, [curPoint.get(0) * 2 + 1, -1 * curPoint.get(2) * 2 - 1, curPoint.get(1) * 2], 8 * i + 4)
+    addCube(mesh, dummy, [curPoint.get(0) * 2 + 1, -1 * curPoint.get(2) * 2 - 1, curPoint.get(1) * 2 + 1], 8 * i + 5)
+    addCube(mesh, dummy, [curPoint.get(0) * 2, -1 * curPoint.get(2) * 2 - 1, curPoint.get(1) * 2 + 1], 8 * i + 6)
   }
 
   maze_vec.delete()
@@ -360,12 +360,12 @@ function init() {
   gui.add(params, 'cubeSideLength', 0.01, 1.0, 0.01).onChange(value => {
     let desired_size = value
     let cur_size = WALL_SIZE;
-    let scale = desired_size/cur_size
+    let scale = desired_size / cur_size
     WALL_SIZE = desired_size
     sols_geometry.scale(scale, scale, scale)
     wall_geometry.scale(scale, scale, scale)
   });
-  
+
 
   gui.add(params, 'generateNewMaze');
   gui.add(params, 'updateCameraPositionOnNewGenerate')
@@ -401,7 +401,7 @@ function generateNewMaze() {
         + "\nMazes with more than " + (1000000).toLocaleString()
         + " expected walls will not generate walls no matter what"
         + "\nThis action will take an expected time of: "
-        + (2*total/1000000).toLocaleString() + " seconds."
+        + (2 * total / 1000000).toLocaleString() + " seconds."
         + "\n(time estimate based on testing on 10th Gen Intel i7)"
         + "\nDo you wish to continue?")) {
         console.log("Maze gen terminated");
@@ -424,9 +424,7 @@ function generateNewMaze() {
     const squares = maze.getMaze();
     console.timeEnd("MazeSolve")
     console.time("MazeRender");
-
-    console.log("Vec Size: " + vec.size())
-
+    
     if (vec.size() == 2) {
       addMazeWalls(dims, squares);
       addMazeSolution(dims, sols);
