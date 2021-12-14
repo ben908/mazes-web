@@ -41,7 +41,7 @@ const axesHelper = new THREE.AxesHelper(5000);
 pointLight.position.set(0, 0, 0);
 axesHelper.setColors(new THREE.Color(0xff0000), new THREE.Color(0x00ff00), new THREE.Color(0x0000ff))
 
-let WALL_SIZE = 0.75
+let WALL_SIZE = 1
 const TOTAL_WALL_SIZE = 1
 
 const wall_geometry = new THREE.BoxBufferGeometry(WALL_SIZE, WALL_SIZE, WALL_SIZE);
