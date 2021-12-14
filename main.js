@@ -264,7 +264,8 @@ function addMazeSolution3D(dims, solution) {
       addCube(mesh, vec, [curr_x * TOTAL_WALL_SIZE, curr_z * TOTAL_WALL_SIZE, curr_y * TOTAL_WALL_SIZE], index + 1)
 
     } else {
-      throw Error("Should never execute")
+      console.log("Higher Dimesnion Rendering Has not been implemented yet.\nCurrent render is slice of higher dimension plane")
+      // throw Error("Should never execute")
     }
   }
 }
@@ -424,7 +425,7 @@ function generateNewMaze() {
     const squares = maze.getMaze();
     console.timeEnd("MazeSolve")
     console.time("MazeRender");
-    
+
     if (vec.size() == 2) {
       addMazeWalls(dims, squares);
       addMazeSolution(dims, sols);
