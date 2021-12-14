@@ -300,9 +300,9 @@ const params = {
 }
 
 let dimParams = {
-  dim1: 2,
-  dim2: 2,
-  dim3: 2,
+  dim1: 20,
+  dim2: 20,
+  dim3: 0,
   dim4: 0,
   dim5: 0,
   dim6: 0,
