@@ -12,7 +12,11 @@ export default {
             input: {
                 main: resolve(__dirname, "index.html"),
             }
+        },
+        server: {
+            host: true
         }
     }
+    
 
 }
