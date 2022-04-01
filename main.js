@@ -376,9 +376,9 @@ function init() {
   h.add(dimParams, "dim1", 0, 200, 1).name("Dim1")
   h.add(dimParams, "dim2", 0, 200, 1).name("Dim2")
   h.add(dimParams, "dim3", 0, 200, 1).name("Dim3")
-  h.add(dimParams, "dim4", 0, 200, 1).name("Dim4")
-  h.add(dimParams, "dim5", 0, 200, 1).name("Dim5")
-  h.add(dimParams, "dim6", 0, 200, 1).name("Dim6")
+  // h.add(dimParams, "dim4", 0, 200, 1).name("Dim4")
+  // h.add(dimParams, "dim5", 0, 200, 1).name("Dim5")
+  // h.add(dimParams, "dim6", 0, 200, 1).name("Dim6")
 
 
   gui.open();
