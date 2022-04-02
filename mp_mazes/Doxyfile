@@ -1,3 +1,0 @@
-@INCLUDE      = ../../doxygen/doxygen.conf
-PROJECT_NAME  = "mp_mazes"
-PROJECT_BRIEF = "Menacing Mazes"
